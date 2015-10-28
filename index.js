@@ -16,10 +16,10 @@ util.inherits(KinesisWritable, FlushWritable);
  * @param {Object} options Options
  * @param {number} [options.highWaterMark=16] Number of items to buffer before writing.
  * Also the size of the underlying stream buffer.
- * @param {Number} [options.retryTimeout=100] How long to wait initially before
- * retrying failed records
  * @param {Number} [options.maxRetries=3] How many times to retry failed data before
  * rasing an error
+ * @param {Number} [options.retryTimeout=100] How long to wait initially before
+ * retrying failed records
  * @param {Object} [options.logger] Instance of a logger like bunyan or winston
  */
 function KinesisWritable(client, streamName, options) {
