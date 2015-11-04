@@ -86,6 +86,22 @@ describe('KinesisWritable', function() {
                 .pipe(this.stream);
         });
 
+        it('should do nothing if there is nothing in the queue when the stream is closed', function(done) {
+            this.client.putRecords.yields(null, successResponseFixture);
+
+            this.stream.on('finish', function() {
+                expect(this.client.putRecords).to.have.been.calledOnce;
+
+                done();
+            }.bind(this));
+
+            for (var i = 0; i < 6; i++) {
+                this.stream.write(recordsFixture);
+            }
+
+            this.stream.end();
+        });
+
         it('should buffer records up to highWaterMark', function(done) {
             this.client.putRecords.yields(null, successResponseFixture);
 
