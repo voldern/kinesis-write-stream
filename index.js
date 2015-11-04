@@ -132,8 +132,13 @@ KinesisWritable.prototype.writeRecords = function writeRecords(callback) {
  *
  * @private
  * @param {Function} callback
+ * @return {undefined}
  */
 KinesisWritable.prototype._flush = function _flush(callback) {
+    if (this.queue.length === 0) {
+        return callback();
+    }
+
     var retry = retryFn.bind(null, {
         retries: this.maxRetries,
         timeout: retryFn.fib(this.retryTimeout)
