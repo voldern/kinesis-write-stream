@@ -10,7 +10,7 @@ Kinesis writable stream that buffers up records
 # Usage
 
 Records written to the stream will buffer up until `highWaterMark` has
-been reached or the stream is closed before writing to Kinesis using
+been reached, or the stream is closed, before writing to Kinesis using
 `putRecords`.
 
 ## Failed items
