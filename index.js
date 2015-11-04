@@ -100,7 +100,7 @@ KinesisWritable.prototype.writeRecords = function writeRecords(callback) {
 
         if (response.FailedRecordCount !== 0) {
             if (this.logger) {
-                this.logger.warning('Failed writing %d records to Kinesis',
+                this.logger.warn('Failed writing %d records to Kinesis',
                     response.FailedRecordCount);
             }
 
@@ -109,7 +109,7 @@ KinesisWritable.prototype.writeRecords = function writeRecords(callback) {
             response.Records.forEach(function(record, index) {
                 if (record.ErrorCode) {
                     if (this.logger) {
-                        this.logger.warning('Failed record with message: %s', record.ErrorMessage);
+                        this.logger.warn('Failed record with message: %s', record.ErrorMessage);
                     }
 
                     failedRecords.push(this.queue[index]);
