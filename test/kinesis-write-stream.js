@@ -64,6 +64,37 @@ describe('KinesisWritable', function() {
 
             expect(kinesis.getPartitionKey()).to.eq('1000');
         });
+
+        it('should be called with the current record being added', function(done) {
+            this.client.putRecords.yields(null, successResponseFixture);
+            this.sinon.stub(this.stream, 'getPartitionKey').returns('1234');
+
+            this.stream.on('finish', function() {
+                expect(this.stream.getPartitionKey).to.have.been.calledWith(recordsFixture[0]);
+                done();
+            }.bind(this));
+
+            streamArray([recordsFixture[0]])
+                .pipe(this.stream);
+        });
+
+        it('should use custom getPartitionKey if defined', function(done) {
+            this.client.putRecords.yields(null, successResponseFixture);
+
+            this.stream.getPartitionKey = function() {
+                return 'custom-partition';
+            };
+
+            this.sinon.spy(this.stream, 'getPartitionKey');
+
+            this.stream.on('finish', function() {
+                expect(this.stream.getPartitionKey).to.have.returned('custom-partition');
+                done();
+            }.bind(this));
+
+            streamArray(recordsFixture)
+                .pipe(this.stream);
+        });
     });
 
     describe('_write', function() {

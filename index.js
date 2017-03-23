@@ -68,7 +68,7 @@ KinesisWritable.prototype.getPartitionKey = function getPartitionKey(record) {
 KinesisWritable.prototype.transformRecord = function transformRecord(record) {
     return {
         Data: JSON.stringify(record),
-        PartitionKey: this.getPartitionKey()
+        PartitionKey: this.getPartitionKey(record)
     };
 };
 
