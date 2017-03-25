@@ -1,6 +1,6 @@
 {
   "name": "kinesis-write-stream",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Kinesis writable stream that buffers up records",
   "main": "index.js",
   "scripts": {
