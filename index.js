@@ -20,6 +20,7 @@ util.inherits(KinesisWritable, FlushWritable);
  * rasing an error
  * @param {Number} [options.retryTimeout=100] How long to wait initially before
  * retrying failed records
+ * @param {number} [options.flushTimeout=null] Number of ms to flush records after, if highWaterMark hasn't been reached
  * @param {Object} [options.logger] Instance of a logger like bunyan or winston
  */
 function KinesisWritable(client, streamName, options) {
@@ -35,6 +36,7 @@ function KinesisWritable(client, streamName, options) {
     this.streamName = streamName;
     this.logger = options.logger || null;
     this.highWaterMark = options.highWaterMark || 16;
+    this.flushTimeout = options.flushTimeout || null;
     this.maxRetries = options.maxRetries || 3;
 
     // The maximum number of items that can be written to Kinesis in
@@ -135,6 +137,8 @@ KinesisWritable.prototype.writeRecords = function writeRecords(callback) {
  * @return {undefined}
  */
 KinesisWritable.prototype._flush = function _flush(callback) {
+    clearTimeout(this.flushTimeoutId);
+
     if (this.queue.length === 0) {
         return callback();
     }
@@ -165,6 +169,20 @@ KinesisWritable.prototype._write = function _write(record, enc, callback) {
 
     if (this.queue.length >= this.highWaterMark) {
         return this._flush(callback);
+    }
+
+    if (this.queue.length >= this.highWaterMark) {
+        return this._flush(callback);
+    } else if (this.flushTimeout) {
+        clearTimeout(this.flushTimeoutId);
+
+        this.flushTimeoutId = setTimeout(function() {
+            this._flush(function(err) {
+                if (err) {
+                    this.emit('error', err);
+                }
+            }.bind(this));
+        }.bind(this), this.flushTimeout);
     }
 
     callback();

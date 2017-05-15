@@ -198,4 +198,64 @@ describe('KinesisWritable', function() {
             streamArray(recordsFixture).pipe(this.stream);
         });
     });
+
+    describe('flush timeout', function() {
+        var originalSetTimeout = setTimeout;
+
+        beforeEach(function() {
+            this.sinon = sinon.sandbox.create();
+
+            this.client = {
+                putRecords: sinon.stub()
+            };
+
+            this.stream = new KinesisWritable(this.client, 'streamName', {
+                highWaterMark: 6,
+                flushTimeout: 1000
+            });
+
+            this.client.putRecords.yields(null, successResponseFixture);
+            this.clock = sinon.useFakeTimers();
+        });
+
+        it('should flush queue if there is something in the queue after timeout', function() {
+            var self = this;
+
+            for (var i = 0; i < 6; i++) {
+                this.stream.write(recordsFixture[0]);
+            }
+
+            this.clock.tick(0);
+
+            expect(self.client.putRecords).to.have.callCount(1);
+
+            self.stream.write(recordsFixture[0]);
+            self.clock.tick(1001);
+
+            expect(self.client.putRecords).to.have.callCount(2);
+        });
+
+        it('should clear flush timer when stream has ended', function(done) {
+            var self = this;
+
+            this.sinon.spy(this.stream, '_flush');
+            this.stream.write(recordsFixture[0]);
+            self.clock.tick(0);
+
+            this.stream.end(function() {
+                self.clock.tick(0);
+                expect(this.stream._flush).to.have.callCount(1);
+
+                this.clock.tick(2001);
+
+                expect(this.stream._flush).to.have.callCount(1);
+
+                done();
+            }.bind(this));
+
+            originalSetTimeout(function() {
+                self.clock.tick(0);
+            });
+        });
+    });
 });
