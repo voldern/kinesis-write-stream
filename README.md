@@ -24,6 +24,13 @@ reached. The initial timeout before the retry is set in
 The partition key is by default a random number, but this can be
 adjusted by overriding `streamInstance.getPartitionKey(record)`.
 
+## Flushing
+
+Its also possible to send in the option `flushTimeout` to indicate
+that the items currently in the buffer should be flushed after the
+given amount of milliseconds if the `highWaterMark` haven't been
+reached.
+
 ## Logging
 
 A [bunyan](https://www.npmjs.com/package/bunyan),
