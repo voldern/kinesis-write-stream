@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.0] - 2017-05-15
+### Added
+- Added flushTimeout for periodically flushing records. 
+  Thanks to @indieisaconcept
+
 ## [1.0.2] - 2017-03-25
 ### Fixed
 - Pass record to getPartitionKey as stated in
