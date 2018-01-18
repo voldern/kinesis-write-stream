@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.1] - 2018-01-18
+### Fixed
+- Fixed bug that would cause loss of events written between a write to Kinesis 
+  started and finished. Fixed by @chrissharkey.
+
 ## [1.1.0] - 2017-05-15
 ### Added
 - Added flushTimeout for periodically flushing records. 
