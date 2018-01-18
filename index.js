@@ -85,7 +85,8 @@ KinesisWritable.prototype.writeRecords = function writeRecords(callback) {
         this.logger.debug('Writing %d records to Kinesis', this.queue.length);
     }
 
-    var records = this.queue.map(this.transformRecord.bind(this));
+    var recordsToWrite = this.queue.splice(0);
+    var records = recordsToWrite.map(this.transformRecord.bind(this));
 
     this.client.putRecords({
         Records: records,
@@ -114,16 +115,14 @@ KinesisWritable.prototype.writeRecords = function writeRecords(callback) {
                         this.logger.warn('Failed record with message: %s', record.ErrorMessage);
                     }
 
-                    failedRecords.push(this.queue[index]);
+                    failedRecords.push(recordsToWrite[index]);
                 }
             }.bind(this));
 
-            this.queue = failedRecords;
+            this.queue = this.queue.concat(failedRecords);
 
             return callback(new Error('Failed to write ' + failedRecords.length + ' records'));
         }
-
-        this.queue = [];
 
         callback();
     }.bind(this));
@@ -164,7 +163,6 @@ KinesisWritable.prototype._write = function _write(record, enc, callback) {
     if (this.logger) {
         this.logger.debug('Adding to Kinesis queue', { record: record });
     }
-
     this.queue.push(record);
 
     if (this.queue.length >= this.highWaterMark) {
